@@ -62,6 +62,7 @@ def testStandingsBeforeMatches():
 	registerPlayer("Melpomene Murray")
 	registerPlayer("Randy Schwartz")
 	standings = playerStandings()
+	print standings
 	if len(standings) < 2:
 		raise ValueError("Players should appear in playerStandings even before "
 						"they have played any matches.")
@@ -133,8 +134,8 @@ def testTies():
 	registerPlayer("Pinkie Pie")
 	standings = playerStandings()
 	[id1, id2, id3, id4] = [row[0] for row in standings]
-	reportMatch(id1, id2, True)
-	reportMatch(id3, id4, True)
+	reportMatch(id1, id2, tie=True)
+	reportMatch(id3, id4, tie=True)
 	new_standings = playerStandings()
 
 	for (i, n, w, m) in new_standings:
@@ -158,6 +159,34 @@ def testRematch():
 			raise ValueError("The second match would be a rematch, it shouldn't be recorded.")
 	print "10. Rematches are not recorded."
 
+def testOMW():
+	deleteMatches()
+	deletePlayers()
+	registerPlayer("Twilight Sparkle")
+	registerPlayer("Fluttershy")
+	registerPlayer("Applejack")
+	registerPlayer("Pinkie Pie")
+	registerPlayer("Mac Mice")
+	registerPlayer("Dr. D")
+	standings = playerStandings()
+	[id1, id2, id3, id4, id5, id6] = [row[0] for row in standings]
+
+	reportMatch(id1, id3)
+	reportMatch(id2, id4)
+	reportMatch(id1, id2, tie=True)
+	reportMatch(id5, id2, tie=True)
+	reportMatch(id6, id3, tie=True)
+	reportMatch(id3, id4)
+	reportMatch(id5, id4)
+	new_standings = playerStandings()
+
+	for ind, (i, n, w, m) in enumerate(new_standings):
+		if ind + 1 < len(standings):
+			next_w, next_m = new_standings[ind+1][2:]
+			if float(next_w)/next_m > float(w)/m:
+				raise ValueError("Players aren't ranked by OMW.")
+	print "11. Players with equal scores are also ranked by OMW."
+
 
 if __name__ == '__main__':
 	testDeleteMatches()
@@ -170,4 +199,5 @@ if __name__ == '__main__':
 	testPairings()
 	testTies()
 	testRematch()
+	testOMW()
 	print "Success!  All tests pass!"

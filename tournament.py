@@ -73,11 +73,58 @@ def registerPlayer(name):
     doQuery("INSERT INTO players VALUES (%s)", name)
 
 
+def applyOMW(standings):
+    """Use OMW to rank players with equal scores.
+
+    Args:
+        standings: the player standings returned by playerStandings.
+    Returns:
+        The newly ordered standings.
+    """
+
+    standings_omw = []
+    flip_done = False
+
+    # Look for players with equal scores.
+    # If there are any, rank them by OMW.
+    for ind, (i, n, w, m) in enumerate(standings):
+
+        # The last player is just added to the new list,
+        # no more flipping necessary.
+        if ind + 1 == len(standings):
+            standings_omw.append(standings[ind])
+
+        else:
+            this_player = standings[ind]
+            next_player = standings[ind+1]
+            former_player = standings[ind-1]
+            next_w, next_m = next_player[2:]
+
+            # If next player has the same scores, check the OMWs.
+            if flip_done:
+                standings_omw.append(former_player)
+                flip_done = False
+            else:
+                next_omw = next_w if not next_m else float(next_w)/next_m
+                this_omw = w if not m else float(w)/m
+
+                # If next player has a higher OMW, flip the positions,
+                # but don't flip again in the next iteration.
+                if next_omw > this_omw:
+                    standings_omw.append(next_player)
+                    flip_done = True
+                else:
+                    standings_omw.append(this_player)
+
+    return standings_omw
+
+
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
     The first entry in the list should be the player in first place, or a player
     tied for first place if there is currently a tie.
+    Players with equal scores are further ranked by OMW.
 
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
@@ -87,8 +134,17 @@ def playerStandings():
         matches: the number of matches the player has played
     """
 
-    res = doQuery("SELECT * FROM standings;")
-    return res
+    before_omw = doQuery("SELECT * FROM standings;")
+    after_omw = applyOMW(before_omw)
+
+    # A single reorder cycle might not be enough, so
+    # iteratively apply OMW until the ranking is stable.
+
+    while before_omw != after_omw:
+        before_omw = after_omw
+        after_omw = applyOMW(after_omw)
+
+    return after_omw
 
 
 def reportMatch(winner, loser, tie=False):
