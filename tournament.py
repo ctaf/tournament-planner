@@ -91,15 +91,22 @@ def playerStandings():
     return res
 
 
-def reportMatch(winner, loser):
+def reportMatch(winner, loser, tie=False):
     """Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
+      tie: if True, record a tie in the database
     """
 
-    doQuery("INSERT INTO matches VALUES (%s, %s, %s);", winner, loser, winner)
+    # In case of a tie, write NULL to the database.
+    # The proper type casting from Python to SQL is handled by psycopg2.
+
+    if tie:
+        doQuery("INSERT INTO matches VALUES (%s, %s, %s);", winner, loser, None)
+    else:
+        doQuery("INSERT INTO matches VALUES (%s, %s, %s);", winner, loser, winner)
 
 
 def swissPairings():

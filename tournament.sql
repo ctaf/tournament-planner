@@ -23,6 +23,9 @@ CREATE TABLE matches
 			REFERENCES players(id)
 	);
 
+-- Using left joins guarantees records for every
+-- player, also for those without any games yet.
+
 CREATE VIEW match_nr AS
     SELECT 
 		name,
@@ -37,6 +40,10 @@ CREATE VIEW match_nr AS
 	GROUP BY
 		name
 	;
+
+-- Ties are easily handled here, as such games are 
+-- recorded as NULL in the database, and NULL cannot
+-- match with any player id.
 
 CREATE VIEW win_nr AS
     SELECT 
