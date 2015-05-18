@@ -100,6 +100,15 @@ def reportMatch(winner, loser, tie=False):
       tie: if True, record a tie in the database
     """
 
+    # Check if there has been a match between the two players before.
+    # If so, no record will be generated.
+
+    former_matches = doQuery("SELECT * FROM matches WHERE p1 = %(w)s AND \
+                            p2 = %(l)s OR p2 = %(w)s AND p1 = %(l)s;" %
+                            {'w': winner, 'l': loser})
+    if former_matches:
+        return
+
     # In case of a tie, write NULL to the database.
     # The proper type casting from Python to SQL is handled by psycopg2.
 

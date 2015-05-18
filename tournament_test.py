@@ -142,6 +142,22 @@ def testTies():
 			raise ValueError("All games were ties, thus all scores should be 0.")
 	print "9. After two matches ending with ties, all scores are still 0."
 
+def testRematch():
+	deleteMatches()
+	deletePlayers()
+	registerPlayer("Twilight Sparkle")
+	registerPlayer("Fluttershy")
+	standings = playerStandings()
+	[id1, id2] = [row[0] for row in standings]
+	reportMatch(id1, id2)
+	reportMatch(id2, id1)
+	new_standings = playerStandings()
+
+	for (i, n, w, m) in new_standings:
+		if m > 1:
+			raise ValueError("The second match would be a rematch, it shouldn't be recorded.")
+	print "10. Rematches are not recorded."
+
 
 if __name__ == '__main__':
 	testDeleteMatches()
@@ -153,4 +169,5 @@ if __name__ == '__main__':
 	testReportMatches()
 	testPairings()
 	testTies()
+	testRematch()
 	print "Success!  All tests pass!"
