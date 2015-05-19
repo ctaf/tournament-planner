@@ -1,7 +1,7 @@
 # Tournament Planner
 
 The Tournament Planner is a Python module which keeps track of players participating
-in Swiss system tournament and is a project of Udacity's full stack developer
+in a Swiss system tournament and is a project of Udacity's full stack developer
 nanodegree. It is based on a PostgreSQL database to store and retrieve the player
 stats and the results of their matches.
 
